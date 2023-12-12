@@ -437,34 +437,26 @@ namespace ShPilot2.UI.Graphics3D
                     }
                 }
             }
-
+            
 
             if (angle != 0)
             {
-                /*
-                Matrix3D mm = mdldxf.Transform.Value;
-                // Quaternion constructor accepts angle in degrees. seems like it rotates clockwise, but in vb6 rotation is counterclockwise
-                mm.RotateAt(new Quaternion(new Vector3D(0, 1, 0), angle), new Point3D(
-                    midPointHorizontal,
-                    (OnePlane + AnotherPlane) / 2.0,
-                    midPointVertical
-                    ));
-                mdldxf.Transform = new MatrixTransform3D(mm);
-                */
+                
+                Matrix mm = pmb.LayoutTransform.Value;
+                mm.RotateAt(angle,midPointHorizontal,midPointVertical);
                 if (rotatedBox != null)
                 {
-                    double offsetX2 = -rotatedBox.upperLeft.X; double offsetY2 = -rotatedBox.bottomRight.Y;
-                    Matrix3D mm2 = mdldxf.Transform.Value;
-                    mm2.Translate(new Vector3D(offsetX2, 0, offsetY2));
-                    mdldxf.Transform = new MatrixTransform3D(mm2);
+                    double offsetX2 = -rotatedBox.upperLeft.X; double offsetY2 = -rotatedBox.bottomRight.Y;                    
+                    mm.Translate(offsetX2, offsetY2);                    
                 }
+                pmb.LayoutTransform = new MatrixTransform(mm);
             }
             else
                 if ((thecurrentBox.upperLeft.X != 0) || (thecurrentBox.bottomRight.Y != 0))
             {
-                Matrix3D mm = mdldxf.Transform.Value;
-                mm.Translate(new Vector3D(offsetX, 0, offsetY));
-                mdldxf.Transform = new MatrixTransform3D(mm);
+                Matrix mm = pmb.LayoutTransform.Value;
+                mm.Translate(offsetX, offsetY);
+                pmb.LayoutTransform = new MatrixTransform(mm);
             }
 
             // display bound box
@@ -485,18 +477,19 @@ namespace ShPilot2.UI.Graphics3D
             // I.... got lost....
             if (mirror == false)
             {
-                Matrix3D mm3 = mdldxf.Transform.Value;
-                mm3.ScaleAt(new Vector3D(-1, 1, 1), new Point3D(
-                    (thecurrentBox.bottomRight.X + offsetX + thecurrentBox.upperLeft.X + offsetX) / 2.0,
-                    (OnePlane + AnotherPlane) / 2.0,
+                Matrix mm3 = pmb.LayoutTransform.Value;
+                mm3.ScaleAt(-1, 1, 
+                    (thecurrentBox.bottomRight.X + offsetX + thecurrentBox.upperLeft.X + offsetX) / 2.0,                   
                     (thecurrentBox.bottomRight.Y + offsetY + thecurrentBox.upperLeft.Y + offsetY) / 2.0
-                    ));
-                mdldxf.Transform = new MatrixTransform3D(mm3);
+                    );
+                pmb.LayoutTransform = new MatrixTransform(mm3);
             }
             out_thecurrentBox2 = thecurrentBox2;
             out_offsetX = offsetX;
             out_OffsetY = offsetY;
-            return mdldxf;
+            pmb.Width = Math.Abs(thecurrentBox2.bottomRight.X - thecurrentBox2.upperLeft.X);
+            pmb.Height= Math.Abs(thecurrentBox2.bottomRight.Y - thecurrentBox2.upperLeft.Y);
+            return pmb;
 
             
 

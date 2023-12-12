@@ -23,7 +23,7 @@ namespace WpfPanAndZoom
         public MainWindow()
         {
             InitializeComponent();
-
+            /*
             CustomControls.Widget w1 = new CustomControls.Widget
             {
                 Width = 200,
@@ -55,6 +55,7 @@ namespace WpfPanAndZoom
             w3.HeaderRectangle.Fill = Brushes.Red;
             Canvas.SetTop(w3, 400);
             Canvas.SetLeft(w3, 800);
+            */
         }
     }
 }
