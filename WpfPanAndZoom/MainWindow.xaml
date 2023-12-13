@@ -18,8 +18,9 @@
             <ColumnDefinition Width="1*"></ColumnDefinition>
             <ColumnDefinition Width="Auto"></ColumnDefinition>
         </Grid.ColumnDefinitions>
-        <TextBox Name="pathText" Grid.Column="0" Grid.Row="0"></TextBox>
-        <CustomControls:PanAndZoomCanvas x:Name="canvas" Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="2" HorizontalAlignment="Stretch"  VerticalAlignment="Stretch" />
+        <TextBox Name="pathText" Grid.Column="0" Grid.Row="0" Margin="2 2"></TextBox>
+        <CustomControls:PanAndZoomCanvas x:Name="canvas" Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="2" ClipToBounds="True" />
+        <Button Name="pathChoose" Grid.Column="1" Grid.Row="0" Margin="2 2" Click="pathChoose_Click">Lets Go</Button>
     </Grid>
 
 </Window>

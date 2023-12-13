@@ -11,7 +11,7 @@ using System.Windows.Controls;
 using System.Windows.Shapes;
 using WpfPanAndZoom.CustomControls.DXF;
 
-namespace ShPilot2.UI.Graphics3D
+namespace WpfPanAndZoom.CustomControls.DXF
 {
     /// <summary>
     /// Bound Box of profile in 2D.
@@ -32,6 +32,7 @@ namespace ShPilot2.UI.Graphics3D
     /// </summary>
     public class ProfileConstructor2D
     {
+        public const String strCanvasName = "DXFCANVAS";
         // names of ignored layers. should be lowercase, lol
         public static List<String> ignoredLayers = new List<string> { "dxffix", "ext prof" };
         public static double ConvertDegreesToRadians(double degrees)
@@ -489,6 +490,7 @@ namespace ShPilot2.UI.Graphics3D
             out_OffsetY = offsetY;
             pmb.Width = Math.Abs(thecurrentBox2.bottomRight.X - thecurrentBox2.upperLeft.X);
             pmb.Height= Math.Abs(thecurrentBox2.bottomRight.Y - thecurrentBox2.upperLeft.Y);
+            pmb.Name = strCanvasName;
             return pmb;
 
             

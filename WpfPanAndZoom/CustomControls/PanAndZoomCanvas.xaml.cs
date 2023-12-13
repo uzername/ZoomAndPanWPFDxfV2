@@ -33,7 +33,8 @@ namespace WpfPanAndZoom.CustomControls
         private Color _backgroundColor = Color.FromArgb(0xFF, 0x33, 0x33, 0x33);
         private List<Line> _gridLines = new List<Line>();
 
-
+        private const double StrokeThick = 6;
+        private const double StrokeThin = 2;
         #endregion
 
         public PanAndZoomCanvas()
@@ -61,11 +62,11 @@ namespace WpfPanAndZoom.CustomControls
 
                 if ( x % 1000 == 0 )
                 {
-                    verticalLine.StrokeThickness = 6;
+                    verticalLine.StrokeThickness = StrokeThick;
                 }
                 else
                 {
-                    verticalLine.StrokeThickness = 2;
+                    verticalLine.StrokeThickness = StrokeThin;
                 }
 
                 Children.Add(verticalLine);

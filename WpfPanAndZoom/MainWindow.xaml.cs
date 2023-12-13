@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Ookii.Dialogs.Wpf;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -12,6 +13,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using WpfPanAndZoom.CustomControls.DXF;
 
 namespace WpfPanAndZoom
 {
@@ -23,7 +25,10 @@ namespace WpfPanAndZoom
         public MainWindow()
         {
             InitializeComponent();
-            /*
+            
+        }
+        private void testComponents()
+        {
             CustomControls.Widget w1 = new CustomControls.Widget
             {
                 Width = 200,
@@ -55,7 +60,42 @@ namespace WpfPanAndZoom
             w3.HeaderRectangle.Fill = Brushes.Red;
             Canvas.SetTop(w3, 400);
             Canvas.SetLeft(w3, 800);
-            */
+        }
+        private void renderDxf(String inFname)
+        {
+            BoundBox resBoundBox = new BoundBox();
+            double displcmntX = 0;
+            double displcmntY = 0;
+            Canvas canvasToShow = ProfileConstructor2D.parseAndRenderDXF(inFname, 0, false, out resBoundBox, out displcmntX, out displcmntY);            
+            canvas.Children.Add(canvasToShow);
+        }
+        private void pathChoose_Click(object sender, RoutedEventArgs e)
+        {
+            VistaOpenFileDialog dialog = new VistaOpenFileDialog();
+            dialog.Filter = "DXF files (*.dxf)|*.dxf";
+            if (!VistaFileDialog.IsVistaFileDialogSupported)
+                MessageBox.Show(this, "Because you are not using Windows Vista or later, the regular open file dialog will be used. Please use Windows Vista to see the new dialog.", "Sample open file dialog");
+            if ((bool)dialog.ShowDialog(this))
+            {
+             this.pathText.Text = dialog.FileName;
+             cleanupCanvas();
+             renderDxf(dialog.FileName);
+            }
+        }
+        private void cleanupCanvas()
+        {
+            int ii = 0; bool found = false;
+            foreach (var item in canvas.Children)
+            {                
+                if (item is Canvas && (item as Canvas)?.Name==ProfileConstructor2D.strCanvasName)
+                {
+                    found = true;
+                    break;
+                }
+                ii++;
+            }
+            if (found)
+            canvas.Children.RemoveAt(ii);
         }
     }
 }
