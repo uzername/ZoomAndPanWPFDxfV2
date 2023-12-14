@@ -211,6 +211,18 @@ namespace WpfPanAndZoom.CustomControls
 
                 double sx = x * scaleFactor;
                 double sy = y * scaleFactor;
+                // TODO bring persistent scale factor
+                if (child is System.Windows.Shapes.Shape)
+                {
+                    (child as System.Windows.Shapes.Shape).StrokeThickness = scaleFactor;
+                }
+                else if (child is Canvas)
+                {
+                    foreach (var itemChildInternal in (child as Canvas).Children)
+                    {
+                        (itemChildInternal as System.Windows.Shapes.Shape).StrokeThickness =scaleFactor;
+                    }
+                }
 
                 Canvas.SetLeft(child, sx);
                 Canvas.SetTop(child, sy);
