@@ -16,8 +16,9 @@ using System.Windows.Shapes;
 namespace WpfPanAndZoom.CustomControls
 {
     /// <summary>
-    /// Interaktionslogik für PanAndZoomCanvas.xaml
-    /// https://stackoverflow.com/questions/35165349/how-to-drag-rendertransform-with-mouse-in-wpf
+    /// Interaktionslogik für PanAndZoomCanvas.xaml .
+    /// https://stackoverflow.com/questions/35165349/how-to-drag-rendertransform-with-mouse-in-wpf .
+    /// https://github.com/SEilers/WpfPanAndZoom
     /// </summary>
     public partial class PanAndZoomCanvas : Canvas
     {
@@ -33,10 +34,10 @@ namespace WpfPanAndZoom.CustomControls
         private Color _backgroundColor = Color.FromArgb(0xFF, 0x33, 0x33, 0x33);
         private List<Line> _gridLines = new List<Line>();
 
-        private const double StrokeThick = 6;
+        private const double StrokeThick = 4;
         private const double StrokeThin = 2;
         #endregion
-
+        
         public PanAndZoomCanvas()
         {
             InitializeComponent();
@@ -86,11 +87,11 @@ namespace WpfPanAndZoom.CustomControls
 
                 if (y % 1000 == 0)
                 {
-                    horizontalLine.StrokeThickness = 6;
+                    horizontalLine.StrokeThickness = StrokeThick;
                 }
                 else
                 {
-                    horizontalLine.StrokeThickness = 2;
+                    horizontalLine.StrokeThickness = StrokeThin;
                 }
 
                 Children.Add(horizontalLine);
@@ -133,10 +134,17 @@ namespace WpfPanAndZoom.CustomControls
                 line.Visibility = value;
             }
         }
-
+        public void resetTransform()
+        {
+            _transform.Matrix = Matrix.Identity;
+            foreach (UIElement child in this.Children)
+            {
+                child.RenderTransform = _transform;
+            }
+        }
         private void PanAndZoomCanvas_MouseDown(object sender, MouseButtonEventArgs e)
         {
-            if (e.ChangedButton == MouseButton.Right)
+            if (e.ChangedButton == MouseButton.Middle)
             {
                 _initialMousePosition = _transform.Inverse.Transform(e.GetPosition(this));
             }
@@ -164,7 +172,7 @@ namespace WpfPanAndZoom.CustomControls
 
         private void PanAndZoomCanvas_MouseMove(object sender, MouseEventArgs e)
         {
-            if (e.RightButton == MouseButtonState.Pressed)
+            if (e.MiddleButton == MouseButtonState.Pressed)
             {
                 Point mousePosition = _transform.Inverse.Transform(e.GetPosition(this));
                 Vector delta = Point.Subtract(mousePosition, _initialMousePosition);
@@ -192,6 +200,7 @@ namespace WpfPanAndZoom.CustomControls
 
         private void PanAndZoomCanvas_MouseWheel(object sender, MouseWheelEventArgs e)
         {
+            if (e.MiddleButton == MouseButtonState.Pressed) return;
             float scaleFactor = Zoomfactor;
             if (e.Delta < 0)
             {
@@ -214,13 +223,13 @@ namespace WpfPanAndZoom.CustomControls
                 // TODO bring persistent scale factor
                 if (child is System.Windows.Shapes.Shape)
                 {
-                    (child as System.Windows.Shapes.Shape).StrokeThickness = scaleFactor;
+                    (child as System.Windows.Shapes.Shape).StrokeThickness /= scaleFactor;
                 }
                 else if (child is Canvas)
                 {
                     foreach (var itemChildInternal in (child as Canvas).Children)
                     {
-                        (itemChildInternal as System.Windows.Shapes.Shape).StrokeThickness =scaleFactor;
+                        (itemChildInternal as System.Windows.Shapes.Shape).StrokeThickness /=scaleFactor;
                     }
                 }
 

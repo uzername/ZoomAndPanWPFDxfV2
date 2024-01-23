@@ -27,40 +27,7 @@ namespace WpfPanAndZoom
             InitializeComponent();
             
         }
-        private void testComponents()
-        {
-            CustomControls.Widget w1 = new CustomControls.Widget
-            {
-                Width = 200,
-                Height = 150
-            };
-            canvas.Children.Add(w1);
-            w1.Header.Text = "Widget 1";
-            Canvas.SetTop(w1, 100);
-            Canvas.SetLeft(w1, 100);
-
-            CustomControls.Widget w2 = new CustomControls.Widget
-            {
-                Width = 200,
-                Height = 150
-            };
-            canvas.Children.Add(w2);
-            w2.Header.Text = "Widget 2";
-            w2.HeaderRectangle.Fill = Brushes.Blue;
-            Canvas.SetTop(w2, 400);
-            Canvas.SetLeft(w2, 400);
-
-            CustomControls.Widget w3 = new CustomControls.Widget
-            {
-                Width = 200,
-                Height = 150
-            };
-            canvas.Children.Add(w3);
-            w3.Header.Text = "Widget 3";
-            w3.HeaderRectangle.Fill = Brushes.Red;
-            Canvas.SetTop(w3, 400);
-            Canvas.SetLeft(w3, 800);
-        }
+        
         private void renderDxf(String inFname)
         {
             BoundBox resBoundBox = new BoundBox();
@@ -78,11 +45,11 @@ namespace WpfPanAndZoom
             if ((bool)dialog.ShowDialog(this))
             {
              this.pathText.Text = dialog.FileName;
-             cleanupCanvas();
+             cleanupPanAndZoomCanvas();
              renderDxf(dialog.FileName);
             }
         }
-        private void cleanupCanvas()
+        private void cleanupPanAndZoomCanvas()
         {
             int ii = 0; bool found = false;
             foreach (var item in canvas.Children)
@@ -96,6 +63,14 @@ namespace WpfPanAndZoom
             }
             if (found)
             canvas.Children.RemoveAt(ii);
+            canvas.resetTransform();
+        }
+
+        private void fitDxfDisplay()
+        {
+            // 1. scale dxf canvas to window size
+
+            // 2. translocate dxf canvas
         }
     }
 }

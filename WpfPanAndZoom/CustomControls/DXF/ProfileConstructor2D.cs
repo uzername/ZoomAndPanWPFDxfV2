@@ -318,12 +318,12 @@ namespace WpfPanAndZoom.CustomControls.DXF
         /// <param name="angle">angle to turn</param>
         /// <param name="mirror">do we need to perform mirror of profile vertically</param>
         
-        /// <param name="out_thecurrentBox2">final bound box of dxf as it is rendered on scene (Helix Toolkit does not calculate it well for me)</param>
+        /// <param name="out_thecurrentBox2">final bound box of dxf as it is rendered on scene</param>
         /// <param name="out_offsetX">offset of DXF as calculated here</param>
         /// <param name="out_OffsetY">offset of DXF as calculated here</param>
         public static Canvas parseAndRenderDXF(String inFname, double angle, bool mirror, out BoundBox out_thecurrentBox2, out double out_offsetX, out double out_OffsetY)
         {
-
+            bool useBorders = true;
             Canvas pmb = new Canvas();
 
             DxfFile dxfFile = DxfFile.Load(inFname);
@@ -471,10 +471,7 @@ namespace WpfPanAndZoom.CustomControls.DXF
             {
                 offsetX = -thecurrentBox2.upperLeft.X; offsetY = -thecurrentBox2.bottomRight.Y;
             }
-            //hey, what about mirroring?
-            // sorry, I kinda messed with adding vertices while defining figure in 3D space, so everytime I am now going to mirror figure. 
-            // apparently in vb 6 coordinate system goes to left. in Autocad coordinate system goes to right. But here user can rotate view of coordinate system however he wants
-            //When there is mirror declaration then no mirroring is needed, we just change viewpoint
+            //hey, what about mirroring?           
             // I.... got lost....
             if (mirror == false)
             {
@@ -491,6 +488,24 @@ namespace WpfPanAndZoom.CustomControls.DXF
             pmb.Width = Math.Abs(thecurrentBox2.bottomRight.X - thecurrentBox2.upperLeft.X);
             pmb.Height= Math.Abs(thecurrentBox2.bottomRight.Y - thecurrentBox2.upperLeft.Y);
             pmb.Name = strCanvasName;
+            // borders
+            if (useBorders)
+            {
+                Line l1 = new Line();
+                l1.X1 = 0;
+                l1.Y1 = 0;
+                l1.X2 = thecurrentBox2.bottomRight.X+offsetX;
+                l1.Y2 = 0;
+                l1.Stroke = Brushes.Green;
+                pmb.Children.Add(l1);
+                Line l2 = new Line();
+                l2.X1 = 0;
+                l2.Y1 = 0;
+                l2.X2 = 0;
+                l2.Y2 = thecurrentBox.upperLeft.Y + offsetY;
+                l2.Stroke = Brushes.Green;
+                pmb.Children.Add(l2);
+            }
             return pmb;
 
             
