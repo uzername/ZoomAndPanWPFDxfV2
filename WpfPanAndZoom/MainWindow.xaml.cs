@@ -30,10 +30,14 @@ namespace WpfPanAndZoom
         
         private void renderDxf(String inFname)
         {
+            cleanupPanAndZoomCanvas();
+
             BoundBox resBoundBox = new BoundBox();
             double displcmntX = 0;
             double displcmntY = 0;
-            Canvas canvasToShow = ProfileConstructor2D.parseAndRenderDXF(inFname, 0, false, out resBoundBox, out displcmntX, out displcmntY);            
+            Canvas canvasToShow = ProfileConstructor2D.parseAndRenderDXF(inFname, 0, false, out resBoundBox, out displcmntX, out displcmntY);
+            Canvas.SetTop(canvasToShow, displcmntY);
+            Canvas.SetLeft(canvasToShow, -displcmntX);
             canvas.Children.Add(canvasToShow);
         }
         private void pathChoose_Click(object sender, RoutedEventArgs e)
@@ -44,8 +48,7 @@ namespace WpfPanAndZoom
                 MessageBox.Show(this, "Because you are not using Windows Vista or later, the regular open file dialog will be used. Please use Windows Vista to see the new dialog.", "Sample open file dialog");
             if ((bool)dialog.ShowDialog(this))
             {
-             this.pathText.Text = dialog.FileName;
-             cleanupPanAndZoomCanvas();
+             this.pathText.Text = dialog.FileName;             
              renderDxf(dialog.FileName);
             }
         }
@@ -70,7 +73,7 @@ namespace WpfPanAndZoom
         {
             // 1. scale dxf canvas to window size
 
-            // 2. translocate dxf canvas
+            // 2. translocate pan and zoom canvas
         }
     }
 }

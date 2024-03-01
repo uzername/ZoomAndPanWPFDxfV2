@@ -30,9 +30,18 @@ namespace WpfPanAndZoom.CustomControls
         private UIElement _selectedElement;
         private Vector _draggingDelta;
 
-        private Color _lineColor = Color.FromArgb(0xFF, 0x66, 0x66, 0x66);
-        private Color _backgroundColor = Color.FromArgb(0xFF, 0x33, 0x33, 0x33);
+        private Color _lineColor = Colors.LightGray;
+        //private Color _backgroundColor = Color.FromArgb(0xFF, 0x33, 0x33, 0x33);
+        private Color _backgroundColor = Colors.White;
         private List<Line> _gridLines = new List<Line>();
+        /// <summary>
+        /// how fast do we zoom when scrolling mousewheel. This number should be bigger than 1 . Should never be negative, never be zero!
+        /// </summary>
+        public float Zoomfactor { get; set; } = 1.1f;
+        /// <summary>
+        /// current value of zoom
+        /// </summary>
+        public float ZoomValue { get; internal set; } = 1.0f;
 
         private const double StrokeThick = 4;
         private const double StrokeThin = 2;
@@ -97,9 +106,7 @@ namespace WpfPanAndZoom.CustomControls
                 Children.Add(horizontalLine);
                 _gridLines.Add(horizontalLine);
             }
-        }
-
-        public float Zoomfactor { get; set; } = 1.1f;
+        }        
 
         public Color LineColor
         {
@@ -140,7 +147,13 @@ namespace WpfPanAndZoom.CustomControls
             foreach (UIElement child in this.Children)
             {
                 child.RenderTransform = _transform;
+                //adjust thick of grid lines
+                if (child is System.Windows.Shapes.Shape)
+                {
+                    (child as System.Windows.Shapes.Shape).StrokeThickness *= ZoomValue;
+                }
             }
+            ZoomValue = 1;
         }
         private void PanAndZoomCanvas_MouseDown(object sender, MouseButtonEventArgs e)
         {
@@ -206,7 +219,7 @@ namespace WpfPanAndZoom.CustomControls
             {
                 scaleFactor = 1f / scaleFactor;
             }
-
+            ZoomValue *= scaleFactor;
             Point mousePostion = e.GetPosition(this);
 
             Matrix scaleMatrix = _transform.Matrix;
@@ -220,7 +233,8 @@ namespace WpfPanAndZoom.CustomControls
 
                 double sx = x * scaleFactor;
                 double sy = y * scaleFactor;
-                // TODO bring persistent scale factor
+                
+                //adjust thick of grid lines
                 if (child is System.Windows.Shapes.Shape)
                 {
                     (child as System.Windows.Shapes.Shape).StrokeThickness /= scaleFactor;
