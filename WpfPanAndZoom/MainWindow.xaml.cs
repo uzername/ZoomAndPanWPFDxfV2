@@ -35,8 +35,11 @@ namespace WpfPanAndZoom
             BoundBox resBoundBox = new BoundBox();
             double displcmntX = 0;
             double displcmntY = 0;
+            // get initial canvas with dxf
             Canvas canvasToShow = ProfileConstructor2D.parseAndRenderDXF(inFname, 0, false, out resBoundBox, out displcmntX, out displcmntY);
-            Canvas.SetTop(canvasToShow, displcmntY);
+            // allocate it relatively to parent
+            double obtainedHeight = Math.Abs(resBoundBox.bottomRight.Y-resBoundBox.upperLeft.Y);
+            Canvas.SetTop(canvasToShow, displcmntY - obtainedHeight);
             Canvas.SetLeft(canvasToShow, -displcmntX);
             canvas.Children.Add(canvasToShow);
         }

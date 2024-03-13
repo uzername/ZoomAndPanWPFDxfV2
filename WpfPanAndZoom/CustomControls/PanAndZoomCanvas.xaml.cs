@@ -176,7 +176,22 @@ namespace WpfPanAndZoom.CustomControls
                 _dragging = true;
             }
         }
+        /// <summary>
+        /// make sure that specified rectangular area completely fits in display. Includes ResetTransform call since it depends on it
+        /// input : coordinates of bottom left point and upper right point
+        /// </summary>
+        public void highlightRectangleAreaToDisplay(double bottomLeftX, double bottomLeftY, double upperRightX, double upperRightY)
+        {
+            double controlWidth = this.Width;
+            double controlHeight = this.Height;
+            double desiredWidth = Math.Abs(bottomLeftX - upperRightX);
+            double desiredHeight = Math.Abs(bottomLeftY - upperRightY);
+            double sfH = desiredHeight / controlHeight;
+            double sfW = desiredWidth / controlWidth;
+            double scaleFactor = (desiredHeight < desiredWidth)? sfH : sfW;
+            resetTransform();
 
+        }
         private void PanAndZoomCanvas_MouseUp(object sender, MouseButtonEventArgs e)
         {
             _dragging = false;
@@ -210,7 +225,13 @@ namespace WpfPanAndZoom.CustomControls
                 }
             }
         }
-
+        /// <summary>
+        /// scale by a specified scale factor around center X and center Y
+        /// </summary>
+        private void scalingAction(double scaleFactor, double centerX, double centerY)
+        {
+            // TODO
+        }
         private void PanAndZoomCanvas_MouseWheel(object sender, MouseWheelEventArgs e)
         {
             if (e.MiddleButton == MouseButtonState.Pressed) return;

@@ -323,7 +323,7 @@ namespace WpfPanAndZoom.CustomControls.DXF
         /// <param name="out_OffsetY">offset of DXF as calculated here</param>
         public static Canvas parseAndRenderDXF(String inFname, double angle, bool mirror, out BoundBox out_thecurrentBox2, out double out_offsetX, out double out_OffsetY)
         {
-            bool useBorders = true;
+            bool useBorders = false;
             Canvas pmb = new Canvas();
 
             DxfFile dxfFile = DxfFile.Load(inFname);
