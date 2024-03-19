@@ -39,9 +39,12 @@ namespace WpfPanAndZoom
             Canvas canvasToShow = ProfileConstructor2D.parseAndRenderDXF(inFname, 0, false, out resBoundBox, out displcmntX, out displcmntY);
             // allocate it relatively to parent
             double obtainedHeight = Math.Abs(resBoundBox.bottomRight.Y-resBoundBox.upperLeft.Y);
-            Canvas.SetTop(canvasToShow, displcmntY - obtainedHeight);
-            Canvas.SetLeft(canvasToShow, -displcmntX);
+            double obtainedWidth = Math.Abs(resBoundBox.bottomRight.X - resBoundBox.upperLeft.X);
+            Canvas.SetTop (canvasToShow, displcmntY - obtainedHeight);
+            Canvas.SetLeft(canvasToShow, -displcmntX);           
             canvas.Children.Add(canvasToShow);
+            // focus on obtained dxf shape
+            canvas.highlightRectangleAreaToDisplay(0, 0, obtainedWidth, obtainedHeight);
         }
         private void pathChoose_Click(object sender, RoutedEventArgs e)
         {
@@ -70,13 +73,6 @@ namespace WpfPanAndZoom
             if (found)
             canvas.Children.RemoveAt(ii);
             canvas.resetTransform();
-        }
-
-        private void fitDxfDisplay()
-        {
-            // 1. scale dxf canvas to window size
-
-            // 2. translocate pan and zoom canvas
         }
     }
 }

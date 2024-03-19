@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+//using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -182,15 +183,21 @@ namespace WpfPanAndZoom.CustomControls
         /// </summary>
         public void highlightRectangleAreaToDisplay(double bottomLeftX, double bottomLeftY, double upperRightX, double upperRightY)
         {
-            double controlWidth = this.Width;
-            double controlHeight = this.Height;
-            double desiredWidth = Math.Abs(bottomLeftX - upperRightX);
-            double desiredHeight = Math.Abs(bottomLeftY - upperRightY);
-            double sfH = desiredHeight / controlHeight;
-            double sfW = desiredWidth / controlWidth;
-            double scaleFactor = (desiredHeight < desiredWidth)? sfH : sfW;
+            double controlWidth = this.ActualWidth;
+            double controlHeight = this.ActualHeight;
+            double contentWidth = Math.Abs(bottomLeftX - upperRightX);
+            double contentHeight = Math.Abs(bottomLeftY - upperRightY);
+            double sfH = controlHeight / contentHeight;
+            double sfW = controlWidth / contentWidth;
+            double scaleFactor = (sfH < sfW)? sfH : sfW;
             resetTransform();
-
+            float translocatorX = (float)(controlWidth / 2 -contentWidth/2);
+            float translocatorY = (float)(controlHeight / 2+contentHeight/2 );
+            //let Zero point be placed in control's center
+            translocateAction(new Vector(translocatorX, translocatorY ));
+            float scalingX = (float)(controlWidth / 2);
+            float scalingY = (float)(controlHeight / 2);
+            scalingAction((float)scaleFactor, scalingX, scalingY);
         }
         private void PanAndZoomCanvas_MouseUp(object sender, MouseButtonEventArgs e)
         {
@@ -204,15 +211,10 @@ namespace WpfPanAndZoom.CustomControls
             {
                 Point mousePosition = _transform.Inverse.Transform(e.GetPosition(this));
                 Vector delta = Point.Subtract(mousePosition, _initialMousePosition);
-                var translate = new TranslateTransform(delta.X, delta.Y);
-                _transform.Matrix = translate.Value * _transform.Matrix;
 
-                foreach (UIElement child in this.Children)
-                {
-                    child.RenderTransform = _transform;
-                }
+                translocateAction(delta);
             }
-
+            // it's regarding dragging element. To be removed in future because we won't drag elements here
             if (_dragging && e.LeftButton == MouseButtonState.Pressed)
             {
                 double x = Mouse.GetPosition(this).X;
@@ -225,26 +227,24 @@ namespace WpfPanAndZoom.CustomControls
                 }
             }
         }
+        private void translocateAction(Vector delta)
+        {
+            var translate = new TranslateTransform(delta.X, delta.Y);
+            _transform.Matrix = translate.Value * _transform.Matrix;
+
+            foreach (UIElement child in this.Children)
+            {
+                child.RenderTransform = _transform;
+            }
+        }
         /// <summary>
         /// scale by a specified scale factor around center X and center Y
         /// </summary>
-        private void scalingAction(double scaleFactor, double centerX, double centerY)
+        private void scalingAction(float scaleFactor, double centerX, double centerY)
         {
-            // TODO
-        }
-        private void PanAndZoomCanvas_MouseWheel(object sender, MouseWheelEventArgs e)
-        {
-            if (e.MiddleButton == MouseButtonState.Pressed) return;
-            float scaleFactor = Zoomfactor;
-            if (e.Delta < 0)
-            {
-                scaleFactor = 1f / scaleFactor;
-            }
             ZoomValue *= scaleFactor;
-            Point mousePostion = e.GetPosition(this);
-
             Matrix scaleMatrix = _transform.Matrix;
-            scaleMatrix.ScaleAt(scaleFactor, scaleFactor, mousePostion.X, mousePostion.Y);
+            scaleMatrix.ScaleAt(scaleFactor, scaleFactor, centerX, centerY);
             _transform.Matrix = scaleMatrix;
 
             foreach (UIElement child in this.Children)
@@ -254,7 +254,7 @@ namespace WpfPanAndZoom.CustomControls
 
                 double sx = x * scaleFactor;
                 double sy = y * scaleFactor;
-                
+
                 //adjust thick of grid lines
                 if (child is System.Windows.Shapes.Shape)
                 {
@@ -264,7 +264,7 @@ namespace WpfPanAndZoom.CustomControls
                 {
                     foreach (var itemChildInternal in (child as Canvas).Children)
                     {
-                        (itemChildInternal as System.Windows.Shapes.Shape).StrokeThickness /=scaleFactor;
+                        (itemChildInternal as System.Windows.Shapes.Shape).StrokeThickness /= scaleFactor;
                     }
                 }
 
@@ -273,6 +273,21 @@ namespace WpfPanAndZoom.CustomControls
 
                 child.RenderTransform = _transform;
             }
+        }
+        private void PanAndZoomCanvas_MouseWheel(object sender, MouseWheelEventArgs e)
+        {
+            if (e.MiddleButton == MouseButtonState.Pressed) return;
+            float scaleFactor = Zoomfactor;
+            if (e.Delta < 0)
+            {
+                scaleFactor = 1f / scaleFactor;
+            }
+            
+            Point mousePostion = e.GetPosition(this);
+
+            scalingAction(scaleFactor,mousePostion.X,mousePostion.Y);
+
+            
         }
     }
 }
