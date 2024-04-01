@@ -311,7 +311,7 @@ namespace WpfPanAndZoom.CustomControls.DXF
             return retStruct;
         }
 
-        private double MirrorPointByGuide(double in_lineEntityP1X, double in_midPointHorizontal)
+        private double MirrorPointByVerticalLine(double in_lineEntityP1X, double in_midPointHorizontal)
         {
             double out_lineEntityP1X = in_lineEntityP1X;
             if (in_lineEntityP1X < in_midPointHorizontal)
@@ -326,7 +326,7 @@ namespace WpfPanAndZoom.CustomControls.DXF
         }
 
         // https://stackoverflow.com/a/60580020/5128696
-        private double MirrorAngleByGuide(double angleRad)
+        private double MirrorAngleByVerticalLine(double angleRad)
         {
             double mirrored_Angle = Math.PI - angleRad;
             if (mirrored_Angle < 0)
@@ -336,48 +336,46 @@ namespace WpfPanAndZoom.CustomControls.DXF
         }
 
         /// <summary>
-        /// BEWARE! MATH AND TRIGONOMETRY RIGHT AHEAD!
+        /// BEWARE! MATH AND TRIGONOMETRY RIGHT AHEAD! 
+        /// due to specifics of WPF, mirroring and turning is to be applied later, to items inside the canvas. Items inside canvas are rendered straight
         /// </summary>
         /// <param name="inFname">file to parse</param>
-        /// <param name="angle">angle to turn</param>
-        /// <param name="mirror">do we need to perform mirror of profile vertically</param>
 
         /// <param name="out_thecurrentBox2">final bound box of dxf as it is rendered on scene</param>
         /// <param name="out_offsetX">offset of DXF as calculated here</param>
         /// <param name="out_OffsetY">offset of DXF as calculated here</param>
-        public static Canvas parseAndRenderDXF(String inFname, double angle, bool mirror, out BoundBox out_thecurrentBox2, out double out_offsetX, out double out_OffsetY)
+        /// <returns>Canvas with all added items but not mirrored and not turned</returns>
+        public static Canvas parseAndRenderDXF(String inFname,  out BoundBox out_thecurrentBox2, out double out_offsetX, out double out_OffsetY)
         {
-            bool useBorders = false;
+            bool useBorders = true;
             Canvas pmb = new Canvas();
 
             DxfFile dxfFile = DxfFile.Load(inFname);
             BoundBox thecurrentBox = getDisplacementOfDxf(dxfFile, false, 0, 0, 0);
-            BoundBox rotatedBox = null;
             double offsetX = 0; double offsetY = 0;
             if ((thecurrentBox.upperLeft.X != 0) || (thecurrentBox.bottomRight.Y != 0))
             {
                 offsetX = -thecurrentBox.upperLeft.X; offsetY = -thecurrentBox.bottomRight.Y;
             }
-            // calculate bound box for rotated figure
             double midPointHorizontal = (thecurrentBox.upperLeft.X + thecurrentBox.bottomRight.X) / 2.0;
             double midPointVertical = (thecurrentBox.upperLeft.Y + thecurrentBox.bottomRight.Y) / 2.0;
-            rotatedBox = getDisplacementOfDxf(dxfFile, true, midPointHorizontal, midPointVertical, ProfileConstructor2D.ConvertDegreesToRadians(angle));
+            
 
             void handleLine(DxfLine line)
             {
                 Line lineLine = new Line();
-                lineLine.X1 = line.P1.X;
-                lineLine.Y1 = line.P1.Y;
-                lineLine.X2 = line.P2.X; 
-                lineLine.Y2 = line.P2.Y;
+                lineLine.X1 = line.P1.X+offsetX;
+                lineLine.Y1 = line.P1.Y+offsetY;
+                lineLine.X2 = line.P2.X+offsetX; 
+                lineLine.Y2 = line.P2.Y+offsetY;
                 lineLine.Stroke = Brushes.Red; 
                 pmb.Children.Add(lineLine);
             }
 
             void handleArc(DxfArc arc)
             {
-                double arcCenterX = arc.Center.X;
-                double arcCenterY = arc.Center.Y;
+                double arcCenterX = arc.Center.X+offsetX;
+                double arcCenterY = arc.Center.Y+offsetY;
                 double radAngleStart = ProfileConstructor2D.ConvertDegreesToRadians(arc.StartAngle);
                 double radAngleEnd = ProfileConstructor2D.ConvertDegreesToRadians(arc.EndAngle);
                 if (radAngleStart > radAngleEnd)
@@ -396,6 +394,12 @@ namespace WpfPanAndZoom.CustomControls.DXF
                 arcGraphic.Stroke = Brushes.Red;
                 pmb.Children.Add(arcGraphic);
 
+            }
+            BoundBox thecurrentBox2 = thecurrentBox;
+
+            if ((thecurrentBox2.upperLeft.X != 0) || (thecurrentBox2.bottomRight.Y != 0))
+            {
+                offsetX = -thecurrentBox2.upperLeft.X; offsetY = -thecurrentBox2.bottomRight.Y;
             }
             // render code
             foreach (DxfEntity entity in dxfFile.Entities)
@@ -463,49 +467,8 @@ namespace WpfPanAndZoom.CustomControls.DXF
                 }
             }
             
+            
 
-            if (angle != 0)
-            {
-                
-                Matrix mm = pmb.LayoutTransform.Value;
-                mm.RotateAt(angle,midPointHorizontal,midPointVertical);
-                if (rotatedBox != null)
-                {
-                    double offsetX2 = -rotatedBox.upperLeft.X; double offsetY2 = -rotatedBox.bottomRight.Y;                    
-                    mm.Translate(offsetX2, offsetY2);                    
-                }
-                pmb.LayoutTransform = new MatrixTransform(mm);
-            }
-            else
-                if ((thecurrentBox.upperLeft.X != 0) || (thecurrentBox.bottomRight.Y != 0))
-            {
-                Matrix mm = pmb.LayoutTransform.Value;
-                mm.Translate(offsetX, offsetY);
-                pmb.LayoutTransform = new MatrixTransform(mm);
-            }
-
-            // display bound box
-            BoundBox thecurrentBox2 = thecurrentBox;
-            if ((rotatedBox != null) && (angle != 0))
-            {
-                thecurrentBox2 = rotatedBox;
-            }
-
-            if ((thecurrentBox2.upperLeft.X != 0) || (thecurrentBox2.bottomRight.Y != 0))
-            {
-                offsetX = -thecurrentBox2.upperLeft.X; offsetY = -thecurrentBox2.bottomRight.Y;
-            }
-            //hey, what about mirroring?           
-            // I.... got lost....
-            if (mirror == false)
-            {
-                Matrix mm3 = pmb.LayoutTransform.Value;
-                mm3.ScaleAt(-1, 1, 
-                    (thecurrentBox.bottomRight.X + offsetX + thecurrentBox.upperLeft.X + offsetX) / 2.0,                   
-                    (thecurrentBox.bottomRight.Y + offsetY + thecurrentBox.upperLeft.Y + offsetY) / 2.0
-                    );
-                pmb.LayoutTransform = new MatrixTransform(mm3);
-            }
             out_thecurrentBox2 = thecurrentBox2;
             out_offsetX = offsetX;
             out_OffsetY = offsetY;
@@ -518,7 +481,7 @@ namespace WpfPanAndZoom.CustomControls.DXF
                 Line l1 = new Line();
                 l1.X1 = 0;
                 l1.Y1 = 0;
-                l1.X2 = thecurrentBox2.bottomRight.X+offsetX;
+                l1.X2 = pmb.Width;
                 l1.Y2 = 0;
                 l1.Stroke = Brushes.Green;
                 pmb.Children.Add(l1);
@@ -526,7 +489,7 @@ namespace WpfPanAndZoom.CustomControls.DXF
                 l2.X1 = 0;
                 l2.Y1 = 0;
                 l2.X2 = 0;
-                l2.Y2 = thecurrentBox.upperLeft.Y + offsetY;
+                l2.Y2 = pmb.Height;
                 l2.Stroke = Brushes.Green;
                 pmb.Children.Add(l2);
             }

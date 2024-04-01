@@ -31,9 +31,22 @@ namespace WpfPanAndZoom
         {
             InitializeComponent();
             renderValues = new DXFParameters { ValAngleDegrees = 0, ValMirroring = false };
+            renderValues.PropertyChanged += RenderValues_PropertyChanged;
+            renderValues.PropertyChanging += RenderValues_PropertyChanging;
             MirrorAnglePanel.DataContext = renderValues;
+
         }
+
+        private void RenderValues_PropertyChanging(object sender, System.ComponentModel.PropertyChangingEventArgs e)
+        {
         
+        }
+
+        private void RenderValues_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            
+        }
+
         private void renderDxf(String inFname)
         {
             cleanupPanAndZoomCanvas();
@@ -42,12 +55,13 @@ namespace WpfPanAndZoom
             double displcmntX = 0;
             double displcmntY = 0;
             // get initial canvas with dxf
-            Canvas canvasToShow = ProfileConstructor2D.parseAndRenderDXF(inFname, renderValues.ValAngleDegrees, false, out resBoundBox, out displcmntX, out displcmntY);
+            Canvas canvasToShow = ProfileConstructor2D.parseAndRenderDXF(inFname, out resBoundBox, out displcmntX, out displcmntY);
             // allocate it relatively to parent
             double obtainedHeight = Math.Abs(resBoundBox.bottomRight.Y-resBoundBox.upperLeft.Y);
             double obtainedWidth = Math.Abs(resBoundBox.bottomRight.X - resBoundBox.upperLeft.X);
-            Canvas.SetTop (canvasToShow, displcmntY - obtainedHeight);
-            Canvas.SetLeft(canvasToShow, -displcmntX);           
+            // contour has been displaced before properly, just move it a bit to up
+            Canvas.SetTop (canvasToShow, 0 - obtainedHeight);
+            Canvas.SetLeft(canvasToShow, 0);           
             canvas.Children.Add(canvasToShow);
             // focus on obtained dxf shape
             canvas.highlightRectangleAreaToDisplay(0, 0, obtainedWidth, obtainedHeight);
@@ -64,6 +78,8 @@ namespace WpfPanAndZoom
              renderDxf(dialog.FileName);
             }
         }
+        // ===== THESE DECLARATIONS SHOULD BE MOVED TO PanAndZoomCanvas
+        /// remove Canvas with DXF but keep everything else. 
         private void cleanupPanAndZoomCanvas()
         {
             int ii = 0; bool found = false;
@@ -79,6 +95,10 @@ namespace WpfPanAndZoom
             if (found)
             canvas.Children.RemoveAt(ii);
             canvas.resetTransform();
+        }
+        private void PerformMirroring()
+        {
+
         }
     }
      public class DXFParameters: ObservableObject

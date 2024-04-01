@@ -36,7 +36,7 @@ namespace WpfPanAndZoom.CustomControls
         private Color _backgroundColor = Colors.White;
         private List<Line> _gridLines = new List<Line>();
         /// <summary>
-        /// how fast do we zoom when scrolling mousewheel. This number should be bigger than 1 . Should never be negative, never be zero!
+        /// how fast do we zoom when scrolling mousewheel. This number should be bigger than 1 and default is 1.1 . Should never be negative, never be zero!
         /// </summary>
         public float Zoomfactor { get; set; } = 1.1f;
         /// <summary>

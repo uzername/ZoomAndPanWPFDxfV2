@@ -24,8 +24,8 @@
         <Button Name="pathChoose" Grid.Column="1" Grid.Row="0" Margin="2 2" Click="pathChoose_Click">Open DXF</Button>
         <StackPanel x:Name="MirrorAnglePanel" Orientation="Horizontal" Grid.Column="0" Grid.Row="2" Grid.ColumnSpan="2">
             <Label Name="LblAngleDeg">Angle (degrees)</Label>
-            <TextBox Name="TxtAngleDeg" Width="100" Margin="2" Text="{Binding ValAngleDegrees}"></TextBox>
-            <CheckBox Name="ChkMirror" IsChecked="{Binding ValMirroring}">Mirroring</CheckBox>
+            <TextBox Name="TxtAngleDeg" Width="100" Margin="2" Text="{Binding Path=ValAngleDegrees, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, NotifyOnSourceUpdated=True}"></TextBox>
+            <CheckBox Name="ChkMirror" IsChecked="{Binding Path=ValMirroring, Mode=TwoWay}">Mirroring</CheckBox>
         </StackPanel>
     </Grid>
 
