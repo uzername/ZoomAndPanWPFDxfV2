@@ -67,9 +67,9 @@ namespace WpfPanAndZoom.CustomControls.DXF
                 if (calculateRotation)
                 {
                     double lineEntityP1XNew = Math.Cos(inRotationAngleRad) * (lineEntityP1X - inRotationCenterX) - Math.Sin(inRotationAngleRad) * (lineEntityP1Y - inRotationCenterY) + inRotationCenterX;
-                    double lineEntityP1YNew = Math.Sin(inRotationAngleRad) * (lineEntityP1X - inRotationCenterX) - Math.Cos(inRotationAngleRad) * (lineEntityP1Y - inRotationCenterY) + inRotationCenterY;
+                    double lineEntityP1YNew = Math.Sin(inRotationAngleRad) * (lineEntityP1X - inRotationCenterX) + Math.Cos(inRotationAngleRad) * (lineEntityP1Y - inRotationCenterY) + inRotationCenterY;
                     double lineEntityP2XNew = Math.Cos(inRotationAngleRad) * (lineEntityP2X - inRotationCenterX) - Math.Sin(inRotationAngleRad) * (lineEntityP2Y - inRotationCenterY) + inRotationCenterX;
-                    double lineEntityP2YNew = Math.Sin(inRotationAngleRad) * (lineEntityP2X - inRotationCenterX) - Math.Cos(inRotationAngleRad) * (lineEntityP2Y - inRotationCenterY) + inRotationCenterY;
+                    double lineEntityP2YNew = Math.Sin(inRotationAngleRad) * (lineEntityP2X - inRotationCenterX) + Math.Cos(inRotationAngleRad) * (lineEntityP2Y - inRotationCenterY) + inRotationCenterY;
                     lineEntityP1X = lineEntityP1XNew;
                     lineEntityP2X = lineEntityP2XNew;
                     lineEntityP1Y = lineEntityP1YNew;
@@ -94,7 +94,7 @@ namespace WpfPanAndZoom.CustomControls.DXF
                 if (calculateRotation)
                 {
                     double arcCenterXNew = Math.Cos(inRotationAngleRad) * (arcCenterX - inRotationCenterX) - Math.Sin(inRotationAngleRad) * (arcCenterY - inRotationCenterY) + inRotationCenterX;
-                    double arcCenterYNew = Math.Sin(inRotationAngleRad) * (arcCenterX - inRotationCenterX) - Math.Cos(inRotationAngleRad) * (arcCenterY - inRotationCenterY) + inRotationCenterY;
+                    double arcCenterYNew = Math.Sin(inRotationAngleRad) * (arcCenterX - inRotationCenterX) + Math.Cos(inRotationAngleRad) * (arcCenterY - inRotationCenterY) + inRotationCenterY;
                     radAngleEnd += inRotationAngleRad;
                     radAngleStart += inRotationAngleRad;
                     arcCenterX = arcCenterXNew;
@@ -150,7 +150,7 @@ namespace WpfPanAndZoom.CustomControls.DXF
                 if (calculateRotation)
                 {
                     double circleCenterXNew = Math.Cos(inRotationAngleRad) * (circleCenterX - inRotationCenterX) - Math.Sin(inRotationAngleRad) * (circleCenterY - inRotationCenterY) + inRotationCenterX;
-                    double circleCenterYNew = Math.Sin(inRotationAngleRad) * (circleCenterX - inRotationCenterX) - Math.Cos(inRotationAngleRad) * (circleCenterY - inRotationCenterY) + inRotationCenterY;
+                    double circleCenterYNew = Math.Sin(inRotationAngleRad) * (circleCenterX - inRotationCenterX) + Math.Cos(inRotationAngleRad) * (circleCenterY - inRotationCenterY) + inRotationCenterY;
                     circleCenterX = circleCenterXNew;
                     circleCenterY = circleCenterYNew;
                 }
@@ -311,13 +311,37 @@ namespace WpfPanAndZoom.CustomControls.DXF
             return retStruct;
         }
 
+        private double MirrorPointByGuide(double in_lineEntityP1X, double in_midPointHorizontal)
+        {
+            double out_lineEntityP1X = in_lineEntityP1X;
+            if (in_lineEntityP1X < in_midPointHorizontal)
+            {
+                out_lineEntityP1X = in_lineEntityP1X + 2 * Math.Abs(in_lineEntityP1X - in_midPointHorizontal);
+            }
+            else if (in_lineEntityP1X > in_midPointHorizontal)
+            {
+                out_lineEntityP1X = in_lineEntityP1X - 2 * Math.Abs(in_lineEntityP1X - in_midPointHorizontal);
+            }
+            return out_lineEntityP1X;
+        }
+
+        // https://stackoverflow.com/a/60580020/5128696
+        private double MirrorAngleByGuide(double angleRad)
+        {
+            double mirrored_Angle = Math.PI - angleRad;
+            if (mirrored_Angle < 0)
+                mirrored_Angle = 2 * Math.PI + mirrored_Angle;
+
+            return mirrored_Angle;
+        }
+
         /// <summary>
         /// BEWARE! MATH AND TRIGONOMETRY RIGHT AHEAD!
         /// </summary>
         /// <param name="inFname">file to parse</param>
         /// <param name="angle">angle to turn</param>
         /// <param name="mirror">do we need to perform mirror of profile vertically</param>
-        
+
         /// <param name="out_thecurrentBox2">final bound box of dxf as it is rendered on scene</param>
         /// <param name="out_offsetX">offset of DXF as calculated here</param>
         /// <param name="out_OffsetY">offset of DXF as calculated here</param>

@@ -1,4 +1,5 @@
-﻿using Ookii.Dialogs.Wpf;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
+using Ookii.Dialogs.Wpf;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -22,10 +23,15 @@ namespace WpfPanAndZoom
     /// </summary>
     public partial class MainWindow : Window
     {
+        /// <summary>
+        /// how should be dxf file rendered - with mirroring and rotation. First mirror then turn
+        /// </summary>
+        public DXFParameters renderValues { get; set; }
         public MainWindow()
         {
             InitializeComponent();
-            
+            renderValues = new DXFParameters { ValAngleDegrees = 0, ValMirroring = false };
+            MirrorAnglePanel.DataContext = renderValues;
         }
         
         private void renderDxf(String inFname)
@@ -36,7 +42,7 @@ namespace WpfPanAndZoom
             double displcmntX = 0;
             double displcmntY = 0;
             // get initial canvas with dxf
-            Canvas canvasToShow = ProfileConstructor2D.parseAndRenderDXF(inFname, 0, false, out resBoundBox, out displcmntX, out displcmntY);
+            Canvas canvasToShow = ProfileConstructor2D.parseAndRenderDXF(inFname, renderValues.ValAngleDegrees, false, out resBoundBox, out displcmntX, out displcmntY);
             // allocate it relatively to parent
             double obtainedHeight = Math.Abs(resBoundBox.bottomRight.Y-resBoundBox.upperLeft.Y);
             double obtainedWidth = Math.Abs(resBoundBox.bottomRight.X - resBoundBox.upperLeft.X);
@@ -74,5 +80,10 @@ namespace WpfPanAndZoom
             canvas.Children.RemoveAt(ii);
             canvas.resetTransform();
         }
+    }
+     public class DXFParameters: ObservableObject
+    {
+        public bool ValMirroring { get; set; }
+        public double ValAngleDegrees { get; set;}
     }
 }

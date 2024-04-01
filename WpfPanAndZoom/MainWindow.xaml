@@ -13,6 +13,7 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="1*"/>
+            <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="1*"></ColumnDefinition>
@@ -21,6 +22,11 @@
         <TextBox Name="pathText" Grid.Column="0" Grid.Row="0" Margin="2 2"></TextBox>
         <CustomControls:PanAndZoomCanvas x:Name="canvas" Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="2" ClipToBounds="True" />
         <Button Name="pathChoose" Grid.Column="1" Grid.Row="0" Margin="2 2" Click="pathChoose_Click">Open DXF</Button>
+        <StackPanel x:Name="MirrorAnglePanel" Orientation="Horizontal" Grid.Column="0" Grid.Row="2" Grid.ColumnSpan="2">
+            <Label Name="LblAngleDeg">Angle (degrees)</Label>
+            <TextBox Name="TxtAngleDeg" Width="100" Margin="2" Text="{Binding ValAngleDegrees}"></TextBox>
+            <CheckBox Name="ChkMirror" IsChecked="{Binding ValMirroring}">Mirroring</CheckBox>
+        </StackPanel>
     </Grid>
 
 </Window>
