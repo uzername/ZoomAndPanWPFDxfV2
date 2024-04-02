@@ -336,7 +336,7 @@ namespace WpfPanAndZoom.CustomControls.DXF
         }
 
         /// <summary>
-        /// BEWARE! MATH AND TRIGONOMETRY RIGHT AHEAD! 
+        /// Enumerate entries of dxf file and prepare it for rendering
         /// due to specifics of WPF, mirroring and turning is to be applied later, to items inside the canvas. Items inside canvas are rendered straight
         /// </summary>
         /// <param name="inFname">file to parse</param>

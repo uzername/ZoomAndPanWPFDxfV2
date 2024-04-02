@@ -113,7 +113,9 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="CustomControls\DXF\Arc.cs" />
+    <Compile Include="CustomControls\DXF\DxfCanvas.cs" />
     <Compile Include="CustomControls\DXF\ProfileConstructor2D.cs" />
+    <Compile Include="CustomControls\DXF\RenderFigureCommon.cs" />
     <Compile Include="CustomControls\PanAndZoomCanvas.xaml.cs">
       <DependentUpon>PanAndZoomCanvas.xaml</DependentUpon>
     </Compile>
