@@ -78,7 +78,7 @@ namespace WpfPanAndZoom
              renderDxf(dialog.FileName);
             }
         }
-        // ===== THESE DECLARATIONS SHOULD BE MOVED TO PanAndZoomCanvas
+
         /// remove Canvas with DXF but keep everything else. 
         private void cleanupPanAndZoomCanvas()
         {

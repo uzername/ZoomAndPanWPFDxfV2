@@ -51,7 +51,7 @@ namespace WpfPanAndZoom.CustomControls.DXF
             p'x = cos(theta) * (px-ox) - sin(theta) * (py-oy) + ox
             p'y = sin(theta) * (px-ox) + cos(theta) * (py-oy) + oy
          */
-        public static BoundBox getDisplacementOfDxf(DxfFile inObtainedStructure, bool calculateRotation, double inRotationCenterX, double inRotationCenterY, double inRotationAngleRad)
+        public static BoundBox getDisplacementOfDxf(DxfFile inObtainedStructure, bool calculateRotation, double inRotationCenterX, double inRotationCenterY, double inRotationAngleRad, bool? mirroring)
         {
             bool isFirstEstimation = true;
             bool gotInside = false;
@@ -64,6 +64,13 @@ namespace WpfPanAndZoom.CustomControls.DXF
                 double lineEntityP2X = lineEntity.P2.X;
                 double lineEntityP1Y = lineEntity.P1.Y;
                 double lineEntityP2Y = lineEntity.P2.Y;
+                if (mirroring.GetValueOrDefault())
+                {
+                    // mirror of line
+                    double midPointHorizontal = inRotationCenterX;
+                    lineEntityP1X = MirrorPointByGuide(lineEntityP1X, midPointHorizontal);
+                    lineEntityP2X = MirrorPointByGuide(lineEntityP2X, midPointHorizontal);
+                }
                 if (calculateRotation)
                 {
                     double lineEntityP1XNew = Math.Cos(inRotationAngleRad) * (lineEntityP1X - inRotationCenterX) - Math.Sin(inRotationAngleRad) * (lineEntityP1Y - inRotationCenterY) + inRotationCenterX;
@@ -85,11 +92,29 @@ namespace WpfPanAndZoom.CustomControls.DXF
                 double arcCenterX = arc.Center.X;
                 double arcCenterY = arc.Center.Y;
                 //estimation of arc bound box is going to be fun
-                double radAngleStart = ProfileConstructor2D.ConvertDegreesToRadians(arc.StartAngle);
-                double radAngleEnd = ProfileConstructor2D.ConvertDegreesToRadians(arc.EndAngle);
+                double radAngleStart = ConvertDegreesToRadians(arc.StartAngle);
+                double radAngleEnd = ConvertDegreesToRadians(arc.EndAngle);
                 if (radAngleStart > radAngleEnd)
                 {
                     radAngleEnd += Math.PI * 2;
+                }
+                if (mirroring.GetValueOrDefault())
+                {
+                    // mirror of arc
+                    double midPointHorizontal = inRotationCenterX;
+                    radAngleStart = MirrorAngleByGuide(radAngleStart);
+                    radAngleEnd = MirrorAngleByGuide(radAngleEnd);
+                    // swap?
+
+                    double tempDecimal = radAngleStart;
+                    radAngleStart = radAngleEnd;
+                    radAngleEnd = tempDecimal;
+
+                    if (radAngleStart > radAngleEnd)
+                    {
+                        radAngleEnd += Math.PI * 2;
+                    }
+                    arcCenterX = MirrorPointByGuide(arcCenterX, midPointHorizontal);
                 }
                 if (calculateRotation)
                 {
@@ -161,6 +186,7 @@ namespace WpfPanAndZoom.CustomControls.DXF
             }
             void handlePolylineDimensions(List<DxfEntity> polylineEntities)
             {
+                // only arcs and lines
                 foreach (DxfEntity entity in polylineEntities)
                 {
                     currentStruct = new BoundBox();
@@ -180,30 +206,9 @@ namespace WpfPanAndZoom.CustomControls.DXF
                                 handleArcDimensions(arc);
                                 break;
                             }
-                        case DxfEntityType.Circle:
+                        default:
                             {
-                                if (gotInside == false) { gotInside = true; }
-                                DxfCircle circle = (DxfCircle)entity;
-                                handleCircleDimensions(circle);
-                                break;
-                            }
-                        case DxfEntityType.Polyline:
-                        case DxfEntityType.LwPolyline:
-                            {
-                                if (gotInside == false)
-                                {
-                                    gotInside = true;
-                                }
-                                List<DxfEntity> obtainedEntitiesFromPolyline = new List<DxfEntity>();
-                                if (entity is DxfPolyline)
-                                {
-                                    obtainedEntitiesFromPolyline = (entity as DxfPolyline).AsSimpleEntities().ToList();
-                                }
-                                else if (entity is DxfLwPolyline)
-                                {
-                                    obtainedEntitiesFromPolyline = (entity as DxfLwPolyline).AsSimpleEntities().ToList();
-                                }
-
+                                // something wrong happened here
                                 break;
                             }
                     }
@@ -230,88 +235,92 @@ namespace WpfPanAndZoom.CustomControls.DXF
             }
             foreach (DxfEntity entity in inObtainedStructure.Entities)
             {
-                if (ProfileConstructor2D.ignoredLayers.Contains(entity.Layer.ToLower()) == false)
+
+                currentStruct = new BoundBox();
+                switch (entity.EntityType)
                 {
-                    currentStruct = new BoundBox();
-                    switch (entity.EntityType)
-                    {
-                        case DxfEntityType.Line:
-                            {
-                                if (gotInside == false)
-                                {
-                                    gotInside = true;
-                                }
-                                DxfLine lineEntity = entity as DxfLine;
-                                handleLineDimensions(lineEntity);
-                                break;
-                            }
-                        case DxfEntityType.Arc:
-                            {
-                                if (gotInside == false)
-                                {
-                                    gotInside = true;
-                                }
-                                DxfArc arc = (DxfArc)entity;
-
-                                handleArcDimensions(arc);
-
-                                break;
-                            }
-                        case DxfEntityType.Circle:
-                            {
-                                if (gotInside == false)
-                                {
-                                    gotInside = true;
-                                }
-                                DxfCircle circle = (DxfCircle)entity;
-                                handleCircleDimensions(circle);
-                                break;
-                            }
-                        case DxfEntityType.Polyline:
-                        case DxfEntityType.LwPolyline:
-                            {
-                                if (gotInside == false)
-                                {
-                                    gotInside = true;
-                                }
-                                List<DxfEntity> obtainedEntitiesFromPolyline = new List<DxfEntity>();
-                                if (entity is DxfPolyline)
-                                {
-                                    obtainedEntitiesFromPolyline = (entity as DxfPolyline).AsSimpleEntities().ToList();
-                                }
-                                else if (entity is DxfLwPolyline)
-                                {
-                                    obtainedEntitiesFromPolyline = (entity as DxfLwPolyline).AsSimpleEntities().ToList();
-                                }
-                                handlePolylineDimensions(obtainedEntitiesFromPolyline);
-                                break;
-                            }
-                    }
-                    if (gotInside)
-                    {
-                        if (isFirstEstimation)
+                    case DxfEntityType.Line:
                         {
-                            retStruct.bottomRight.X = currentStruct.bottomRight.X;
-                            retStruct.bottomRight.Y = currentStruct.bottomRight.Y;
-                            retStruct.upperLeft.X = currentStruct.upperLeft.X;
-                            retStruct.upperLeft.Y = currentStruct.upperLeft.Y;
-                            isFirstEstimation = false;
+                            if (gotInside == false)
+                            {
+                                gotInside = true;
+                            }
+                            DxfLine lineEntity = entity as DxfLine;
+                            handleLineDimensions(lineEntity);
+                            break;
                         }
-                        else
+                    case DxfEntityType.Arc:
                         {
-                            retStruct.bottomRight.X = Math.Max(currentStruct.bottomRight.X, retStruct.bottomRight.X);
-                            retStruct.bottomRight.Y = Math.Min(currentStruct.bottomRight.Y, retStruct.bottomRight.Y);
-                            retStruct.upperLeft.X = Math.Min(currentStruct.upperLeft.X, retStruct.upperLeft.X);
-                            retStruct.upperLeft.Y = Math.Max(currentStruct.upperLeft.Y, retStruct.upperLeft.Y);
+                            if (gotInside == false)
+                            {
+                                gotInside = true;
+                            }
+                            DxfArc arc = (DxfArc)entity;
+
+                            handleArcDimensions(arc);
+
+                            break;
                         }
-                        gotInside = false;
-                    }
+                    case DxfEntityType.Circle:
+                        {
+                            if (gotInside == false)
+                            {
+                                gotInside = true;
+                            }
+                            DxfCircle circle = (DxfCircle)entity;
+                            handleCircleDimensions(circle);
+                            break;
+                        }
+                    case DxfEntityType.Polyline:
+                    case DxfEntityType.LwPolyline:
+                        {
+                            if (gotInside == false)
+                            {
+                                gotInside = true;
+                            }
+                            List<DxfEntity> obtainedEntitiesFromPolyline = new List<DxfEntity>();
+                            if (entity is DxfPolyline)
+                            {
+                                obtainedEntitiesFromPolyline = (entity as DxfPolyline).AsSimpleEntities().ToList();
+                            }
+                            else if (entity is DxfLwPolyline)
+                            {
+                                obtainedEntitiesFromPolyline = (entity as DxfLwPolyline).AsSimpleEntities().ToList();
+                            }
+                            handlePolylineDimensions(obtainedEntitiesFromPolyline);
+                            break;
+                        }
                 }
+                if (gotInside)
+                {
+                    if (isFirstEstimation)
+                    {
+                        retStruct.bottomRight.X = currentStruct.bottomRight.X;
+                        retStruct.bottomRight.Y = currentStruct.bottomRight.Y;
+                        retStruct.upperLeft.X = currentStruct.upperLeft.X;
+                        retStruct.upperLeft.Y = currentStruct.upperLeft.Y;
+                        isFirstEstimation = false;
+                    }
+                    else
+                    {
+                        retStruct.bottomRight.X = Math.Max(currentStruct.bottomRight.X, retStruct.bottomRight.X);
+                        retStruct.bottomRight.Y = Math.Min(currentStruct.bottomRight.Y, retStruct.bottomRight.Y);
+                        retStruct.upperLeft.X = Math.Min(currentStruct.upperLeft.X, retStruct.upperLeft.X);
+                        retStruct.upperLeft.Y = Math.Max(currentStruct.upperLeft.Y, retStruct.upperLeft.Y);
+                    }
+                    gotInside = false;
+                }
+
             }
             return retStruct;
         }
-
-        private double MirrorPointByVerticalLine(double in_lineEntityP1X, double in_midPointHorizontal)
+        public static void rotatePointAroundCenterPoint(out double lineEntityP1XNew,out double lineEntityP1YNew, 
+            double lineEntityP1X, double lineEntityP1Y, double inRotationAngleRad, double inRotationCenterX, double inRotationCenterY)
+        {
+            lineEntityP1XNew = Math.Cos(inRotationAngleRad) * (lineEntityP1X - inRotationCenterX) - Math.Sin(inRotationAngleRad) * (lineEntityP1Y - inRotationCenterY) + inRotationCenterX;
+            lineEntityP1YNew = Math.Sin(inRotationAngleRad) * (lineEntityP1X - inRotationCenterX) + Math.Cos(inRotationAngleRad) * (lineEntityP1Y - inRotationCenterY) + inRotationCenterY;
+        }
+        public static double MirrorPointByGuide(double in_lineEntityP1X, double in_midPointHorizontal)
         {
             double out_lineEntityP1X = in_lineEntityP1X;
             if (in_lineEntityP1X < in_midPointHorizontal)
@@ -326,7 +335,7 @@ namespace WpfPanAndZoom.CustomControls.DXF
         }
 
         // https://stackoverflow.com/a/60580020/5128696
-        private double MirrorAngleByVerticalLine(double angleRad)
+        public static double MirrorAngleByGuide(double angleRad)
         {
             double mirrored_Angle = Math.PI - angleRad;
             if (mirrored_Angle < 0)
@@ -351,7 +360,7 @@ namespace WpfPanAndZoom.CustomControls.DXF
             Canvas pmb = new Canvas();
 
             DxfFile dxfFile = DxfFile.Load(inFname);
-            BoundBox thecurrentBox = getDisplacementOfDxf(dxfFile, false, 0, 0, 0);
+            BoundBox thecurrentBox = getDisplacementOfDxf(dxfFile, false, 0, 0, 0,null);
             double offsetX = 0; double offsetY = 0;
             if ((thecurrentBox.upperLeft.X != 0) || (thecurrentBox.bottomRight.Y != 0))
             {
