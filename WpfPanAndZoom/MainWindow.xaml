@@ -4,7 +4,9 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:WpfPanAndZoom"
-        xmlns:CustomControls="clr-namespace:WpfPanAndZoom.CustomControls" x:Class="WpfPanAndZoom.MainWindow"
+        xmlns:CustomControls="clr-namespace:WpfPanAndZoom.CustomControls" 
+        xmlns:CustomControlsDXF="clr-namespace:WpfPanAndZoom.CustomControls.DXF"
+        x:Class="WpfPanAndZoom.MainWindow"
         mc:Ignorable="d"
         Title="Show DXF file. You can scroll to zoom and pan around while holding middle button" Height="450" Width="800">
 
@@ -20,7 +22,9 @@
             <ColumnDefinition Width="Auto"></ColumnDefinition>
         </Grid.ColumnDefinitions>
         <TextBox Name="pathText" Grid.Column="0" Grid.Row="0" Margin="2 2"></TextBox>
-        <CustomControls:PanAndZoomCanvas x:Name="canvas" Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="2" ClipToBounds="True" />
+        <CustomControls:PanAndZoomCanvas x:Name="canvas" Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="2" ClipToBounds="True" >
+            
+        </CustomControls:PanAndZoomCanvas>
         <Button Name="pathChoose" Grid.Column="1" Grid.Row="0" Margin="2 2" Click="pathChoose_Click">Open DXF</Button>
         <StackPanel x:Name="MirrorAnglePanel" Orientation="Horizontal" Grid.Column="0" Grid.Row="2" Grid.ColumnSpan="2">
             <Label Name="LblAngleDeg">Angle (degrees)</Label>

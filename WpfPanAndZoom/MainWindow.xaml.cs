@@ -55,14 +55,14 @@ namespace WpfPanAndZoom
             double displcmntX = 0;
             double displcmntY = 0;
             // get initial canvas with dxf
-            Canvas canvasToShow = ProfileConstructor2D.parseAndRenderDXF(inFname, out resBoundBox, out displcmntX, out displcmntY);
+            // Canvas canvasToShow = ProfileConstructor2D.parseAndRenderDXF(inFname, out resBoundBox, out displcmntX, out displcmntY);
             // allocate it relatively to parent
             double obtainedHeight = Math.Abs(resBoundBox.bottomRight.Y-resBoundBox.upperLeft.Y);
             double obtainedWidth = Math.Abs(resBoundBox.bottomRight.X - resBoundBox.upperLeft.X);
             // contour has been displaced before properly, just move it a bit to up
-            Canvas.SetTop (canvasToShow, 0 - obtainedHeight);
-            Canvas.SetLeft(canvasToShow, 0);           
-            canvas.Children.Add(canvasToShow);
+            //Canvas.SetTop (canvasToShow, 0 - obtainedHeight);
+            //Canvas.SetLeft(canvasToShow, 0);           
+            //canvas.Children.Add(canvasToShow);
             // focus on obtained dxf shape
             canvas.highlightRectangleAreaToDisplay(0, 0, obtainedWidth, obtainedHeight);
         }

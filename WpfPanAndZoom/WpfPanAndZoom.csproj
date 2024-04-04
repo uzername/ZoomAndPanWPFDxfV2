@@ -96,6 +96,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Page Include="CustomControls\DxfCanvasCommon.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="CustomControls\PanAndZoomCanvas.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -112,8 +116,10 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="CustomControls\DxfCanvasCommon.xaml.cs">
+      <DependentUpon>DxfCanvasCommon.xaml</DependentUpon>
+    </Compile>
     <Compile Include="CustomControls\DXF\Arc.cs" />
-    <Compile Include="CustomControls\DXF\DxfCanvas.cs" />
     <Compile Include="CustomControls\DXF\ProfileConstructor2D.cs" />
     <Compile Include="CustomControls\DXF\RenderFigureCommon.cs" />
     <Compile Include="CustomControls\PanAndZoomCanvas.xaml.cs">
