@@ -116,6 +116,7 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="CustomControls\DXFCanvas.cs" />
     <Compile Include="CustomControls\DxfCanvasCommon.xaml.cs">
       <DependentUpon>DxfCanvasCommon.xaml</DependentUpon>
     </Compile>

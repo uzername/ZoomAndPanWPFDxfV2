@@ -14,6 +14,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using WpfPanAndZoom.CustomControls;
 using WpfPanAndZoom.CustomControls.DXF;
 
 namespace WpfPanAndZoom
@@ -23,6 +24,11 @@ namespace WpfPanAndZoom
     /// </summary>
     public partial class MainWindow : Window
     {
+        /// <summary>
+        /// here is a canvas that contains contours of dxf file. it will be dynamically rendered in window. Not in xaml because of the problem: 
+        /// https://microsoft.public.expression.interactivedesigner.narkive.com/sYbM1lpY/cannot-set-name-attribute-value
+        /// </summary>
+        DXFCanvas canvasToShow2 = new DXFCanvas();
         /// <summary>
         /// how should be dxf file rendered - with mirroring and rotation. First mirror then turn
         /// </summary>
@@ -35,6 +41,7 @@ namespace WpfPanAndZoom
             renderValues.PropertyChanging += RenderValues_PropertyChanging;
             MirrorAnglePanel.DataContext = renderValues;
 
+            canvas.Children.Add(canvasToShow2);
         }
 
         private void RenderValues_PropertyChanging(object sender, System.ComponentModel.PropertyChangingEventArgs e)
@@ -51,17 +58,20 @@ namespace WpfPanAndZoom
         {
             cleanupPanAndZoomCanvas();
 
+            canvasToShow2.N1_PreloadDxfFile(inFname);
             BoundBox resBoundBox = new BoundBox();
             double displcmntX = 0;
             double displcmntY = 0;
             // get initial canvas with dxf
-            // Canvas canvasToShow = ProfileConstructor2D.parseAndRenderDXF(inFname, out resBoundBox, out displcmntX, out displcmntY);
+            // Canvas canvasToShow = ProfileConstructor2D.parseAndRenderDXF(inFname, out resBoundBox, out displcmntX, out displcmntY);            
+            canvasToShow2.N2_modifyRenderFiguresForDxfFile(renderValues.ValMirroring, renderValues.ValAngleDegrees, true);
+            resBoundBox = canvasToShow2.thetransformedBox;
             // allocate it relatively to parent
             double obtainedHeight = Math.Abs(resBoundBox.bottomRight.Y-resBoundBox.upperLeft.Y);
             double obtainedWidth = Math.Abs(resBoundBox.bottomRight.X - resBoundBox.upperLeft.X);
             // contour has been displaced before properly, just move it a bit to up
-            //Canvas.SetTop (canvasToShow, 0 - obtainedHeight);
-            //Canvas.SetLeft(canvasToShow, 0);           
+            Canvas.SetTop (canvasToShow2, 0 - obtainedHeight);
+            Canvas.SetLeft(canvasToShow2, 0);           
             //canvas.Children.Add(canvasToShow);
             // focus on obtained dxf shape
             canvas.highlightRectangleAreaToDisplay(0, 0, obtainedWidth, obtainedHeight);
@@ -82,26 +92,37 @@ namespace WpfPanAndZoom
         /// remove Canvas with DXF but keep everything else. 
         private void cleanupPanAndZoomCanvas()
         {
-            int ii = 0; bool found = false;
-            foreach (var item in canvas.Children)
-            {                
-                if (item is Canvas && (item as Canvas)?.Name==ProfileConstructor2D.strCanvasName)
-                {
-                    found = true;
-                    break;
-                }
-                ii++;
-            }
-            if (found)
-            canvas.Children.RemoveAt(ii);
+            canvasToShow2.N0_CleanupCanvas();
             canvas.resetTransform();
+        }
+
+        private void renderParsedFile()
+        {
+            BoundBox resBoundBox = new BoundBox();
+            double displcmntX = 0;
+            double displcmntY = 0;
+            // get initial canvas with dxf
+            // Canvas canvasToShow = ProfileConstructor2D.parseAndRenderDXF(inFname, out resBoundBox, out displcmntX, out displcmntY);            
+            canvasToShow2.N2_modifyRenderFiguresForDxfFile(renderValues.ValMirroring, renderValues.ValAngleDegrees, true);
+            resBoundBox = canvasToShow2.thetransformedBox;
+            // allocate it relatively to parent
+            double obtainedHeight = Math.Abs(resBoundBox.bottomRight.Y - resBoundBox.upperLeft.Y);
+            double obtainedWidth = Math.Abs(resBoundBox.bottomRight.X - resBoundBox.upperLeft.X);
+            // contour has been displaced before properly, just move it a bit to up
+            Canvas.SetTop(canvasToShow2, 0 - obtainedHeight);
+            Canvas.SetLeft(canvasToShow2, 0);
         }
         private void PerformMirroring()
         {
+            
+        }
 
+        private void ChkMirror_Checked(object sender, RoutedEventArgs e)
+        {
+            renderParsedFile();
         }
     }
-     public class DXFParameters: ObservableObject
+    public class DXFParameters: ObservableObject
     {
         public bool ValMirroring { get; set; }
         public double ValAngleDegrees { get; set;}

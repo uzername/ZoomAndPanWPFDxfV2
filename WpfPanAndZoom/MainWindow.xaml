@@ -29,7 +29,7 @@
         <StackPanel x:Name="MirrorAnglePanel" Orientation="Horizontal" Grid.Column="0" Grid.Row="2" Grid.ColumnSpan="2">
             <Label Name="LblAngleDeg">Angle (degrees)</Label>
             <TextBox Name="TxtAngleDeg" Width="100" Margin="2" Text="{Binding Path=ValAngleDegrees, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, NotifyOnSourceUpdated=True}"></TextBox>
-            <CheckBox Name="ChkMirror" IsChecked="{Binding Path=ValMirroring, Mode=TwoWay}">Mirroring</CheckBox>
+            <CheckBox Name="ChkMirror" IsChecked="{Binding Path=ValMirroring, Mode=TwoWay}" Checked="ChkMirror_Checked">Mirroring</CheckBox>
         </StackPanel>
     </Grid>
 
