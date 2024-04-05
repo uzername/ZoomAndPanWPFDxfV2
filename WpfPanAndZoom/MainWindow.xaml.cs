@@ -98,19 +98,28 @@ namespace WpfPanAndZoom
 
         private void renderParsedFile()
         {
-            BoundBox resBoundBox = new BoundBox();
-            double displcmntX = 0;
-            double displcmntY = 0;
+            BoundBox resBoundBoxNew = new BoundBox();
+            BoundBox resBoundBoxOld = new BoundBox ();
             // get initial canvas with dxf
             // Canvas canvasToShow = ProfileConstructor2D.parseAndRenderDXF(inFname, out resBoundBox, out displcmntX, out displcmntY);            
-            canvasToShow2.N2_modifyRenderFiguresForDxfFile(renderValues.ValMirroring, renderValues.ValAngleDegrees, true);
-            resBoundBox = canvasToShow2.thetransformedBox;
+            resBoundBoxOld = canvasToShow2.thetransformedBox;
+            canvasToShow2.N2_modifyRenderFiguresForDxfFile(renderValues.ValMirroring, renderValues.ValAngleDegrees, false);
+            resBoundBoxNew = canvasToShow2.thetransformedBox;
             // allocate it relatively to parent
-            double obtainedHeight = Math.Abs(resBoundBox.bottomRight.Y - resBoundBox.upperLeft.Y);
-            double obtainedWidth = Math.Abs(resBoundBox.bottomRight.X - resBoundBox.upperLeft.X);
-            // contour has been displaced before properly, just move it a bit to up
-            Canvas.SetTop(canvasToShow2, 0 - obtainedHeight);
-            Canvas.SetLeft(canvasToShow2, 0);
+            double obtainedHeightNew = Math.Abs(resBoundBoxNew.bottomRight.Y - resBoundBoxNew.upperLeft.Y);
+            double obtainedWidthNew = Math.Abs(resBoundBoxNew.bottomRight.X - resBoundBoxNew.upperLeft.X);
+
+            double obtainedHeightOld = Math.Abs(resBoundBoxOld.bottomRight.Y - resBoundBoxOld.upperLeft.Y);
+            double obtainedWidthOld = Math.Abs(resBoundBoxOld.bottomRight.X - resBoundBoxOld.upperLeft.X);
+
+            double deltaHeight = obtainedHeightNew - obtainedHeightOld;
+            double currentTop = Canvas.GetTop(canvasToShow2);
+            // contour has been displaced before properly, just move it a bit to up according to delta
+            double cZoom = canvas.ZoomValue;
+            Canvas.SetTop(canvasToShow2, currentTop-cZoom*deltaHeight);
+            
+            //Canvas.SetTop(canvasToShow2, 0 - obtainedHeight);
+            //Canvas.SetLeft(canvasToShow2, 0);
         }
         private void PerformMirroring()
         {
@@ -120,6 +129,14 @@ namespace WpfPanAndZoom
         private void ChkMirror_Checked(object sender, RoutedEventArgs e)
         {
             renderParsedFile();
+        }
+
+        private void TxtAngleDeg_KeyUp(object sender, KeyEventArgs e)
+        {
+            if ( e.Key == Key.Enter )
+            {
+                renderParsedFile();
+            }
         }
     }
     public class DXFParameters: ObservableObject

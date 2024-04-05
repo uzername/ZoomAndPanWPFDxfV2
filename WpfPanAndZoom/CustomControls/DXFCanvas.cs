@@ -283,6 +283,10 @@ namespace WpfPanAndZoom.CustomControls
         /// <param name="initRequired">should we really re-init all the stuff? set to TRUE if you are calling it when initially parsing dxf file. set to FALSE when you are applying mirror and angle to already parsed dxf file</param>
         public void N2_modifyRenderFiguresForDxfFile(bool mirror, double AngleDeg, bool initRequired)
         {
+            if ((dxfFileCurrent == null) || (thecurrentBox == null))
+            {
+
+            }
             if (initRequired)
             {
                 // start from beginning
