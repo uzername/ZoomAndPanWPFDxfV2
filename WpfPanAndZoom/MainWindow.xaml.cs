@@ -138,6 +138,22 @@ namespace WpfPanAndZoom
                 renderParsedFile();
             }
         }
+        /// <summary>
+        /// User clicked on Plus or Minus
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void BtnPlusMinus_Click(object sender, RoutedEventArgs e)
+        {
+            String nValue = (sender as Button).Tag.ToString();
+            try
+            {
+                renderValues.ValAngleDegrees = Double.Parse(nValue);
+            } catch (Exception exc)
+            {
+                MessageBox.Show(exc.Message);
+            }
+        }
     }
     public class DXFParameters: ObservableObject
     {

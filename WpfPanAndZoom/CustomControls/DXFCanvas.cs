@@ -69,6 +69,18 @@ namespace WpfPanAndZoom.CustomControls
             double arcCenterY = arc.Center.Y;
             double radAngleStart = ProfileConstructor2D.ConvertDegreesToRadians(arc.StartAngle);
             double radAngleEnd = ProfileConstructor2D.ConvertDegreesToRadians(arc.EndAngle);
+
+            if (arc.Normal != DxfVector.ZAxis)
+            {
+                arcCenterX = -arcCenterX;
+                radAngleStart = ProfileConstructor2D.MirrorAngleByGuide(radAngleStart);
+                radAngleEnd = ProfileConstructor2D.MirrorAngleByGuide(radAngleEnd);
+                // do I swap angles?
+                double tempDecimal = radAngleStart;
+                radAngleStart = radAngleEnd;
+                radAngleEnd = tempDecimal;
+            }
+
             if (radAngleStart > radAngleEnd)
             {
                 radAngleEnd += Math.PI * 2;

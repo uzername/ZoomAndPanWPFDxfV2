@@ -94,6 +94,18 @@ namespace WpfPanAndZoom.CustomControls.DXF
                 //estimation of arc bound box is going to be fun
                 double radAngleStart = ConvertDegreesToRadians(arc.StartAngle);
                 double radAngleEnd = ConvertDegreesToRadians(arc.EndAngle);
+                // handle rare case of negative normal
+                if (arc.Normal != DxfVector.ZAxis)
+                {
+                    arcCenterX = -arcCenterX;
+                    radAngleStart = MirrorAngleByGuide(radAngleStart);
+                    radAngleEnd = MirrorAngleByGuide(radAngleEnd);
+                    // swap angles
+                    double tempDecimal = radAngleStart;
+                    radAngleStart = radAngleEnd;
+                    radAngleEnd = tempDecimal;
+                }
+
                 if (radAngleStart > radAngleEnd)
                 {
                     radAngleEnd += Math.PI * 2;
@@ -387,6 +399,17 @@ namespace WpfPanAndZoom.CustomControls.DXF
                 double arcCenterY = arc.Center.Y+offsetY;
                 double radAngleStart = ProfileConstructor2D.ConvertDegreesToRadians(arc.StartAngle);
                 double radAngleEnd = ProfileConstructor2D.ConvertDegreesToRadians(arc.EndAngle);
+                // handle rare case of negative normal
+                if (arc.Normal != DxfVector.ZAxis)
+                {
+                    arcCenterX = -arcCenterX;
+                    radAngleStart = MirrorAngleByGuide(radAngleStart);
+                    radAngleEnd = MirrorAngleByGuide(radAngleEnd);
+                    // do I swap angles?
+                    double tempDecimal = radAngleStart;
+                    radAngleStart = radAngleEnd;
+                    radAngleEnd = tempDecimal;
+                }
                 if (radAngleStart > radAngleEnd)
                 {
                     radAngleEnd += Math.PI * 2;
