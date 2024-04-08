@@ -148,7 +148,9 @@ namespace WpfPanAndZoom
             String nValue = (sender as Button).Tag.ToString();
             try
             {
-                renderValues.ValAngleDegrees = Double.Parse(nValue);
+                renderValues.ValAngleDegrees += Double.Parse(nValue);
+                (TxtAngleDeg).GetBindingExpression(TextBox.TextProperty).UpdateTarget();
+                renderParsedFile();
             } catch (Exception exc)
             {
                 MessageBox.Show(exc.Message);

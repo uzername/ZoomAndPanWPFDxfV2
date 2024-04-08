@@ -162,7 +162,15 @@ namespace WpfPanAndZoom.CustomControls
                         break;
                     case DxfEntityType.Circle:
                         {
-                            /// TODO
+                            // circle is divided in two arcs to simplify logic
+                            double XCenterCircle = (entity as DxfCircle).Center.X;
+                            double YCenterCircle = (entity as DxfCircle).Center.Y;
+                            double ZCenterCircle = (entity as DxfCircle).Center.Z;
+                            double RadiusCircle = (entity as DxfCircle).Radius;
+                            DxfArc arc1= new DxfArc(new DxfPoint(XCenterCircle, YCenterCircle,ZCenterCircle), RadiusCircle,0,180);
+                            DxfArc arc2 = new DxfArc(new DxfPoint(XCenterCircle, YCenterCircle, ZCenterCircle), RadiusCircle, 180, 359.99);
+                            List<DxfEntity> lll = new List<DxfEntity> { arc1, arc2 };
+                            setRenderFiguresList(lll, mirror, AngleRad, initRequired, in_midpointH, in_midpointV, in_offsetX, in_offsetY);
                             break;
                         }
                     case DxfEntityType.DgnUnderlay:
@@ -206,7 +214,8 @@ namespace WpfPanAndZoom.CustomControls
                         }
                     case DxfEntityType.LwPolyline:
                         {
-                            /// TODO
+                            List<DxfEntity> entitiesPolyLine = (entity as DxfLwPolyline).AsSimpleEntities().ToList();
+                            setRenderFiguresList(entitiesPolyLine, mirror, AngleRad, initRequired, in_midpointH, in_midpointV, in_offsetX, in_offsetY);
                             break;
                         }
                     case DxfEntityType.MLine:
@@ -225,7 +234,8 @@ namespace WpfPanAndZoom.CustomControls
                         break;
                     case DxfEntityType.Polyline:
                         {
-                            /// TODO
+                            List<DxfEntity> entitiesPolyLine = (entity as DxfPolyline).AsSimpleEntities().ToList();
+                            setRenderFiguresList(entitiesPolyLine, mirror, AngleRad, initRequired, in_midpointH, in_midpointV, in_offsetX, in_offsetY);
                             break;
                         }
                     case DxfEntityType.ProxyEntity:
