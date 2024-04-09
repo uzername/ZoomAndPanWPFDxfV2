@@ -36,6 +36,7 @@
             <Button Name="BtnPlus10" Tag="10" FontFamily="Consolas" Click="BtnPlusMinus_Click">+10</Button>
             <Button Name="BtnPlus90" Tag="90" FontFamily="Consolas" Click="BtnPlusMinus_Click">+90</Button>
             <CheckBox Name="ChkMirror" IsChecked="{Binding Path=ValMirroring, Mode=TwoWay}" Checked="ChkMirror_Checked" Unchecked="ChkMirror_Checked">Mirroring</CheckBox>
+            <Label Name="LblCoordinates" Content="{Binding Path=CoordValuesFull}"></Label>
         </StackPanel>
     </Grid>
 

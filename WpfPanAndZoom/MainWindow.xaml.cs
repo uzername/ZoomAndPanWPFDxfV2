@@ -40,8 +40,18 @@ namespace WpfPanAndZoom
             renderValues.PropertyChanged += RenderValues_PropertyChanged;
             renderValues.PropertyChanging += RenderValues_PropertyChanging;
             MirrorAnglePanel.DataContext = renderValues;
-
+            canvas.MouseMove += ZoompanCanvas_AdjustCoordinate;
             canvas.Children.Add(canvasToShow2);
+        }
+
+        private void ZoompanCanvas_AdjustCoordinate(object sender, MouseEventArgs e)
+        {
+            double x = Mouse.GetPosition(canvas).X;
+            double y = Mouse.GetPosition(canvas).Y;
+            Point pntMouse = Mouse.GetPosition(canvas);
+            Point pntControl = canvas.ScreenCoordinatesToFieldCoordinates(pntMouse);
+            // show coordinates on mouse move
+            renderValues.CoordValuesFull = $"[{pntControl.X:F3};{-pntControl.Y:F3}]";
         }
 
         private void RenderValues_PropertyChanging(object sender, System.ComponentModel.PropertyChangingEventArgs e)
@@ -121,10 +131,6 @@ namespace WpfPanAndZoom
             //Canvas.SetTop(canvasToShow2, 0 - obtainedHeight);
             //Canvas.SetLeft(canvasToShow2, 0);
         }
-        private void PerformMirroring()
-        {
-            
-        }
 
         private void ChkMirror_Checked(object sender, RoutedEventArgs e)
         {
@@ -159,7 +165,11 @@ namespace WpfPanAndZoom
     }
     public class DXFParameters: ObservableObject
     {
+        
+        private string _coordValuesFull;
         public bool ValMirroring { get; set; }
         public double ValAngleDegrees { get; set;}
+
+        public string CoordValuesFull { get => _coordValuesFull; set => SetProperty(ref _coordValuesFull, value); }
     }
 }

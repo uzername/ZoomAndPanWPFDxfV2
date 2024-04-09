@@ -52,6 +52,8 @@ namespace WpfPanAndZoom.CustomControls
         {
             InitializeComponent();
 
+            this.Cursor = Cursors.Cross;
+
             MouseDown += PanAndZoomCanvas_MouseDown;
             MouseUp += PanAndZoomCanvas_MouseUp;
             MouseMove += PanAndZoomCanvas_MouseMove;
@@ -273,6 +275,13 @@ namespace WpfPanAndZoom.CustomControls
 
                 child.RenderTransform = _transform;
             }
+        }
+        public Point ScreenCoordinatesToFieldCoordinates(Point inCoordinates)
+        {
+            // here is wizardry of matrix transforms
+            Matrix mtr1 = new Matrix(_transform.Matrix.M11, _transform.Matrix.M12, _transform.Matrix.M21, _transform.Matrix.M22, _transform.Matrix.OffsetX, _transform.Matrix.OffsetY);
+            mtr1.Invert();
+            return mtr1.Transform(inCoordinates);
         }
         private void PanAndZoomCanvas_MouseWheel(object sender, MouseWheelEventArgs e)
         {
